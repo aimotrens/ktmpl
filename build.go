@@ -69,7 +69,7 @@ func installBinary() {
 
 func buildDocker(imageNameFlag string, withoutKubectlFlag bool) {
 	dockerfile := `
-FROM golang:1.20-alpine AS builder
+FROM golang:{{.goversion}}-alpine AS builder
 WORKDIR /src
 ADD . .
 RUN go build -o ./bin/ktmpl ./app
@@ -96,7 +96,10 @@ COPY --from=kubectl_downloader /kubectl /usr/bin/kubectl
 
 	renderedDockerFile, err := templating.RunTemplateInMemory(
 		dockerfile,
-		map[string]any{"kubectl": !withoutKubectlFlag},
+		map[string]any{
+			"goversion": runtime.Version()[2:],
+			"kubectl":   !withoutKubectlFlag,
+		},
 	)
 	if err != nil {
 		panic(err)
