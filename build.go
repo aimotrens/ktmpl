@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"runtime"
@@ -11,9 +12,15 @@ import (
 	"github.com/aimotrens/ktmpl/app/templating"
 )
 
+const (
+	binaryLinux   = "./bin/ktmpl_linux_amd64"
+	binaryWindows = "./bin/ktmpl_windows_amd64.exe"
+)
+
 func main() {
 	buildBinaryFlag := flag.Bool("binary", false, "build binary")
 	installFlag := flag.Bool("install", false, "install binary")
+	installPathFlag := flag.String("install-path", "", "install path")
 
 	buildDockerFlag := flag.Bool("docker", false, "build docker image")
 	imageNameFlag := flag.String("image", "ktmpl", "docker image name")
@@ -21,11 +28,11 @@ func main() {
 
 	flag.Parse()
 
-	if *buildBinaryFlag {
+	if *buildBinaryFlag || *installFlag {
 		buildBinary()
 
 		if *installFlag {
-			installBinary()
+			installBinary(*installPathFlag)
 		}
 	}
 
@@ -48,23 +55,31 @@ func buildBinary() {
 		return cmd
 	}
 
-	createCmd("linux", "bin/ktmpl_linux_amd64").Run()
-	createCmd("windows", "bin/ktmpl_windows_amd64.exe").Run()
+	createCmd("linux", binaryLinux).Run()
+	createCmd("windows", binaryWindows).Run()
 }
 
-func installBinary() {
-	var cmd *exec.Cmd
-	if runtime.GOOS == "linux" {
-		cmd = exec.Command("cp", "./bin/ktmpl_linux_amd64", os.ExpandEnv("$HOME/.local/bin/ktmpl"))
-	} else if runtime.GOOS == "windows" {
-		cmd = exec.Command("cp", "./bin/ktmpl_windows_amd64.exe", os.ExpandEnv("%LOCALAPPDATA%/Programs/ktmpl.exe"))
-	} else {
+func installBinary(installPath string) {
+	var src, dst string
+	switch runtime.GOOS {
+	case "linux":
+		src = binaryLinux
+		dst = os.ExpandEnv("$HOME/.local/bin/ktmpl")
+	case "windows":
+		src = binaryWindows
+		dst = os.ExpandEnv("$LOCALAPPDATA/Programs/kube-tools/ktmpl.exe")
+	default:
 		panic("install is not supported on " + runtime.GOOS + " yet")
 	}
 
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Run()
+	if installPath != "" {
+		dst = installPath
+	}
+
+	_, err := CopyFile(src, dst)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func buildDocker(imageNameFlag string, withoutKubectlFlag bool) {
@@ -112,4 +127,20 @@ COPY --from=kubectl_downloader /kubectl /usr/bin/kubectl
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = strings.NewReader(renderedDockerFile)
 	cmd.Run()
+}
+
+func CopyFile(src, dst string) (written int64, err error) {
+	srcFile, err := os.Open(src)
+	if err != nil {
+		return 0, err
+	}
+	defer srcFile.Close()
+
+	dstFile, err := os.Create(dst)
+	if err != nil {
+		return 0, err
+	}
+	defer dstFile.Close()
+
+	return io.Copy(dstFile, srcFile)
 }
