@@ -4,7 +4,9 @@ import "html/template"
 
 func GetTemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
-		"toYaml": toYaml,
-		"indent": indent,
+		"toYaml":  toYaml,
+		"indent":  indent,
+		"iterate": iterate,
+		"format":  format,
 	}
 }
