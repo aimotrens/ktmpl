@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/aimotrens/ktmpl/app/templating"
 )
@@ -48,7 +49,11 @@ func main() {
 
 func buildBinary() {
 	createCmd := func(osName, output string) *exec.Cmd {
-		cmd := exec.Command("go", "build", "-o", output, "./app")
+		cmd := exec.Command("go", "build",
+			"-ldflags", "-X \"main.compileDate="+time.Now().Format("02.01.2006 15:04:05")+"\"",
+			"-o", output,
+			"./app",
+		)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		cmd.Env = append(os.Environ(), "GOOS="+osName, "GOARCH=amd64")

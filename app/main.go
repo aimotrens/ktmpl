@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"runtime"
 
 	"os"
 	"path/filepath"
@@ -14,12 +15,20 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+var compileDate string
+
 func main() {
+	version := flag.Bool("version", false, "print version")
 	recursive := flag.Bool("recursive", false, "recurse into subdirectories")
 	output := flag.String("output", "-", "output file (default stdout)")
 	valuesFile := flag.String("values", "", "values file (as YAML)")
 	addEnv := flag.Bool("env", false, "add environment variables to values")
 	flag.Parse()
+
+	if *version {
+		fmt.Printf("ktmpl compiled at %s with %v on %v/%v\n", compileDate, runtime.Version(), runtime.GOOS, runtime.GOARCH)
+		return
+	}
 
 	var opendValuesFile *os.File
 	var opendOutputFile *os.File
