@@ -7,5 +7,7 @@ func GetTemplateFuncMap() template.FuncMap {
 		"toYaml": toYaml,
 		"indent": indent,
 		"substr": substr,
+		"iterate": iterate,
+		"format":  format,
 	}
 }
