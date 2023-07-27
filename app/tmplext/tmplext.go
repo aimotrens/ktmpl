@@ -6,5 +6,6 @@ func GetTemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
 		"toYaml": toYaml,
 		"indent": indent,
+		"substr": substr,
 	}
 }
