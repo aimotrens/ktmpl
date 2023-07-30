@@ -25,6 +25,7 @@ func main() {
 
 	buildDockerFlag := flag.Bool("docker", false, "build docker image")
 	imageNameFlag := flag.String("image", "ktmpl", "docker image name")
+	imagePushFlag := flag.Bool("push", false, "push docker image")
 	withoutKubectlFlag := flag.Bool("without-kubectl", false, "exclude kubectl in docker image")
 
 	flag.Parse()
@@ -42,9 +43,8 @@ func main() {
 			panic("image name is required")
 		}
 
-		buildDocker(*imageNameFlag, *withoutKubectlFlag)
+		buildDocker(*imageNameFlag, *withoutKubectlFlag, *imagePushFlag)
 	}
-
 }
 
 func buildBinary() {
@@ -87,7 +87,7 @@ func installBinary(installPath string) {
 	}
 }
 
-func buildDocker(imageNameFlag string, withoutKubectlFlag bool) {
+func buildDocker(imageNameFlag string, withoutKubectlFlag bool, imagePushFlag bool) {
 	dockerfile := `
 FROM golang:{{.goversion}}-alpine AS builder
 WORKDIR /src
@@ -132,6 +132,13 @@ COPY --from=kubectl_downloader /kubectl /usr/bin/kubectl
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = strings.NewReader(renderedDockerFile)
 	cmd.Run()
+
+	if imagePushFlag {
+		cmd = exec.Command("docker", "push", imageNameFlag)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		cmd.Run()
+	}
 }
 
 func CopyFile(src, dst string) (written int64, err error) {
