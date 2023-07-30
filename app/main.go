@@ -17,15 +17,53 @@ import (
 
 var compileDate string
 
+var usage = `Usage:
+ktmpl [options] <templates>
+    Templates can be a file or a directory.
+    If a directory is specified, all .yml/.yaml files in that directory will be processed.
+
+Examples:
+    ktmpl -i values.yml template.yml          # process template.yml with values.yml
+    ktmpl -e -i values.yml template.yml       # process template.yml with values.yml and environment variables
+    ktmpl -e -o output.yml template.yml       # process template.yml with environment variables and write to output.yml
+
+Options:
+    -v, --version       print version information
+    -r, --recursive     recurse into subdirectories
+    -o, --output        output file
+    -i, --values        values file (as YAML)
+    -e, --env           add environment variables to values
+`
+
 func main() {
-	version := flag.Bool("version", false, "print version")
-	recursive := flag.Bool("recursive", false, "recurse into subdirectories")
-	output := flag.String("output", "-", "output file (default stdout)")
-	valuesFile := flag.String("values", "", "values file (as YAML)")
-	addEnv := flag.Bool("env", false, "add environment variables to values")
+	flag.Usage = func() { fmt.Print(usage) }
+
+	var version, recursive, addEnv bool
+	var output, valuesFile string
+
+	flag.BoolVar(&version, "v", false, "print version information")
+	flag.BoolVar(&version, "version", false, "print version information")
+
+	flag.BoolVar(&recursive, "r", false, "recurse into subdirectories")
+	flag.BoolVar(&recursive, "recursive", false, "recurse into subdirectories")
+
+	flag.StringVar(&output, "o", "-", "output file")
+	flag.StringVar(&output, "output", "-", "output file")
+
+	flag.StringVar(&valuesFile, "i", "", "values file (as YAML)")
+	flag.StringVar(&valuesFile, "values", "", "values file (as YAML)")
+
+	flag.BoolVar(&addEnv, "e", false, "add environment variables to values")
+	flag.BoolVar(&addEnv, "env", false, "add environment variables to values")
+
 	flag.Parse()
 
-	if *version {
+	if flag.NArg() == 0 {
+		flag.Usage()
+		return
+	}
+
+	if version {
 		fmt.Printf("ktmpl compiled at %s with %v on %v/%v\n", compileDate, runtime.Version(), runtime.GOOS, runtime.GOARCH)
 		return
 	}
@@ -44,11 +82,11 @@ func main() {
 		return
 	}
 
-	if *valuesFile != "" {
-		if *valuesFile == "-" {
+	if valuesFile != "" {
+		if valuesFile == "-" {
 			opendValuesFile = os.Stdin
 		} else {
-			opendValuesFile, err = os.Open(*valuesFile)
+			opendValuesFile, err = os.Open(valuesFile)
 			if err != nil {
 				fmt.Println(err)
 				return
@@ -57,10 +95,10 @@ func main() {
 		defer opendValuesFile.Close()
 	}
 
-	if *output == "-" {
+	if output == "-" {
 		opendOutputFile = os.Stdout
 	} else {
-		opendOutputFile, err = os.Create(*output)
+		opendOutputFile, err = os.Create(output)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -77,11 +115,11 @@ func main() {
 		}
 	}
 
-	if *addEnv {
+	if addEnv {
 		addEnvToValues(values)
 	}
 
-	inputFiles, err := getInputFiles(inputTemplate, *recursive, []string{*valuesFile, *output})
+	inputFiles, err := getInputFiles(inputTemplate, recursive, []string{valuesFile, output})
 	if err != nil {
 		fmt.Println(err)
 		return
