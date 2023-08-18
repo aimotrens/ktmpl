@@ -19,7 +19,7 @@ var compileDate string
 
 var usage = `Usage:
 ktmpl [options] <templates>
-    Templates can be a file or a directory.
+    <templates> can be a file or a directory.
     If a directory is specified, all .yml/.yaml files in that directory will be processed.
 
 Examples:
@@ -33,6 +33,13 @@ Options:
     -o, --output        output file
     -i, --values        values file (as YAML)
     -e, --env           add environment variables to values
+
+Template functions (last argument is pipeline variable):
+    indent(spaces int, s string) string             # indent string with spaces
+    substr(start, length int, s string) string      # get substring
+    iterate(from, to int) []int                     # create slice of integers
+    format(format string, obj any) string           # format string
+    toYaml(obj any) string                          # convert object to YAML
 `
 
 func main() {
