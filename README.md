@@ -1,6 +1,6 @@
 # Description
 
-ktmpl is a lightweight templating tool to process YAML files.  
+ktmpl is a lightweight templating tool to process YAML files. It uses the go template engine.
 It was born out of the idea of having a simple way to process Kubernetes manifests in Gitlab CI pipelines.
 
 
@@ -28,7 +28,7 @@ If a directory is specified, all .yml/.yaml files in that directory will be proc
 
 # Template functions
 
-The last argument is the pipeline variable
+(The last argument is the pipeline variable)
 
     indent(spaces int, s string) string             # indent string with spaces
     substr(start, length int, s string) string      # get substring
