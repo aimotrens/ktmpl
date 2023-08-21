@@ -1,9 +1,9 @@
 package templating
 
 import (
-	"html/template"
 	"os"
 	"strings"
+	"text/template"
 
 	"github.com/aimotrens/ktmpl/app/tmplext"
 )
