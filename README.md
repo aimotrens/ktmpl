@@ -35,3 +35,55 @@ The last argument is the pipeline variable
     iterate(from, to int) []int                     # create slice of integers
     format(format string, obj any) string           # format string
     toYaml(obj any) string                          # convert object to YAML
+
+
+# Example templates and usage
+
+## ./values.yml
+```yaml
+globalAppName: awesome-app
+image: awesome-app:{{.env.CI_COMMIT_REF_SLUG}}
+```
+
+## ./template/config.yml
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{.globalAppName}}
+data:
+  APP_ENV: production
+```
+
+## ./template/deployment.yml
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.globalAppName}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{.globalAppName}}
+  template:
+    metadata:
+    labels:
+      app: {{.globalAppName}}
+    spec:
+      containers:
+        - name: {{.globalAppName}}
+          image: {{.image}}
+      envFrom:
+        - configMapRef:
+            name: {{.globalAppName}}
+```
+
+## Usage
+```bash
+ktmpl -e ./values.yml | ktmpl -i - ./template/ | kubectl apply -f -
+```
+
+The first `ktmpl` call will process `values.yml` and replaces the CI environment variable.
+The result is piped into the second `ktmpl` call which processes the template files with the values from the first call.
+The result from the second call is piped into `kubectl apply` which applies the manifests to the Kubernetes cluster.
