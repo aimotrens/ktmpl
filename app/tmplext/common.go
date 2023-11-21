@@ -25,3 +25,15 @@ func iterate(from, to int) []int {
 func format(format string, obj any) string {
 	return fmt.Sprintf(format, obj)
 }
+
+func endsWith(suffix, s string) bool {
+	return strings.HasSuffix(s, suffix)
+}
+
+func startsWith(prefix, s string) bool {
+	return strings.HasPrefix(s, prefix)
+}
+
+func contains(substring, s string) bool {
+	return strings.Contains(s, substring)
+}
