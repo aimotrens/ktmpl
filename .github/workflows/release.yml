@@ -92,5 +92,5 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           push: true
-          args: --build-arg KTMPL_VERSION=${{ needs.tag-next-version.outputs.version }}
+          build-args: KTMPL_VERSION=${{ needs.tag-next-version.outputs.version }}
           tags: ${{ secrets.REG_USER }}/kdeploy:${{ needs.tag-next-version.outputs.version }},${{ secrets.REG_USER }}/kdeploy:latest

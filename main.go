@@ -65,13 +65,13 @@ func main() {
 
 	flag.Parse()
 
-	if flag.NArg() == 0 {
-		flag.Usage()
+	if version {
+		fmt.Printf("ktmpl %s, compiled at %s with %v on %v/%v\n", ktmplVersion, compileDate, runtime.Version(), runtime.GOOS, runtime.GOARCH)
 		return
 	}
 
-	if version {
-		fmt.Printf("ktmpl %s, compiled at %s with %v on %v/%v\n", ktmplVersion, compileDate, runtime.Version(), runtime.GOOS, runtime.GOARCH)
+	if flag.NArg() == 0 {
+		flag.Usage()
 		return
 	}
 
