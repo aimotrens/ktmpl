@@ -15,7 +15,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var compileDate string
+var compileDate, ktmplVersion string
 
 var usage = `Usage:
 ktmpl [options] <templates>
@@ -71,7 +71,7 @@ func main() {
 	}
 
 	if version {
-		fmt.Printf("ktmpl compiled at %s with %v on %v/%v\n", compileDate, runtime.Version(), runtime.GOOS, runtime.GOARCH)
+		fmt.Printf("ktmpl %s, compiled at %s with %v on %v/%v\n", ktmplVersion, compileDate, runtime.Version(), runtime.GOOS, runtime.GOARCH)
 		return
 	}
 
