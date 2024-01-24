@@ -18,5 +18,6 @@ RUN chmod +x ./kubectl
 
 FROM debian:latest@sha256:b16cef8cbcb20935c0f052e37fc3d38dc92bfec0bcfb894c328547f81e932d67
 
+RUN apt-get update && apt-get install -y curl xz-utils && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /src/bin/ktmpl /usr/bin/ktmpl
 COPY --from=kubectl_downloader /kubectl /usr/bin/kubectl
