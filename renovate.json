@@ -6,7 +6,9 @@
   "packageRules": [
     {
       "matchUpdateTypes": [
-        "patch"
+        "patch",
+        "pin",
+        "digest"
       ],
       "automerge": true,
       "addLabels": [
