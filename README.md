@@ -35,7 +35,64 @@ If a directory is specified, all .yml/.yaml files in that directory will be proc
     iterate(from, to int) []int                     # create slice of integers
     format(format string, obj any) string           # format string
     toYaml(obj any) string                          # convert object to YAML
+    endsWith(suffix, s string) bool                 # check if string ends with suffix
+    startsWith(prefix, s string) bool               # check if string starts with prefix
+    contains(substring, s string) bool              # check if string contains substring
+    includeAsYamlFields(pattern string) string      # include files as YAML fields (especially useful for K8s config maps)
 
+
+# Exclude directories
+
+To exclude directories from processing, create a `.ktmpl_ignore_dir` file in the directory.
+This is especially useful if you have a folder with YAML files that you want to include as config files with includeAsYamlFields.
+
+
+# Include files as YAML fields
+
+To include files as YAML fields, use the `includeAsYamlFields` function. It accepts a glob pattern as an argument.
+If you have previously saved classic config files in K8's config maps, you can now save the config files in clearer separate files and then include them in the config map.
+
+Example:
+
+Your config map:
+
+```yaml
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: my-config-map
+    data:
+      {{ includeAsYamlFields "config/*" }}
+```
+
+Your config files:
+
+```yaml
+    # ./config/service-a.yml
+    first: value
+```
+
+```properties
+    # ./config/service-b.properties
+    Key1=Value1
+```
+
+The `includeAsYamlFields` function will include the contents of `service-a.yml` and `service-b.properties` as YAML fields in the main config map.
+The filename is used as the key and the file contents as the value.
+
+Result:
+
+```yaml
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: my-config-map
+    data:
+      service-a.yml: |
+        first: value
+      service-b.properties: |
+        ConfigA=Value1
+```
 
 # Example templates and usage
 

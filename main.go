@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/aimotrens/ktmpl/app/templating"
+	"golang.org/x/exp/slices"
 	"gopkg.in/yaml.v3"
 )
 
@@ -169,6 +170,14 @@ func getInputFiles(input string, recursive bool, exclude []string) ([]string, er
 					return err
 				}
 
+				if info.IsDir() {
+					if c, err := containsIgnoreFile(path); err != nil {
+						return err
+					} else if c {
+						return filepath.SkipDir
+					}
+				}
+
 				if isValidInputFile(info) {
 					inputFiles = append(inputFiles, path)
 				}
@@ -178,6 +187,12 @@ func getInputFiles(input string, recursive bool, exclude []string) ([]string, er
 
 			return inputFiles, err
 		} else {
+			if c, err := containsIgnoreFile(input); err != nil {
+				return nil, err
+			} else if c {
+				return []string{}, nil
+			}
+
 			inputFiles, err := os.ReadDir(input)
 			if err != nil {
 				return nil, err
@@ -217,4 +232,15 @@ func addEnvToValues(values map[string]any) {
 		envMap[pair[0]] = pair[1]
 	}
 	values["env"] = envMap
+}
+
+func containsIgnoreFile(dir string) (bool, error) {
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		return false, err
+	}
+
+	return slices.ContainsFunc(files, func(file fs.DirEntry) bool {
+		return file.Name() == ".ktmpl_ignore_dir"
+	}), nil
 }
