@@ -2,7 +2,7 @@ package tmplext
 
 import "html/template"
 
-func GetTemplateFuncMap() template.FuncMap {
+func GetTemplateFuncMap(runTemplate func(string) (string, error)) template.FuncMap {
 	return template.FuncMap{
 		"toYaml":              toYaml,
 		"indent":              indent,
@@ -12,6 +12,7 @@ func GetTemplateFuncMap() template.FuncMap {
 		"endsWith":            endsWith,
 		"startsWith":          startsWith,
 		"contains":            contains,
-		"includeAsYamlFields": includeAsYamlFields,
+		"include":             createIncludeFunc(runTemplate, false),
+		"includeAsYamlFields": createIncludeFunc(runTemplate, true),
 	}
 }

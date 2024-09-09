@@ -23,7 +23,13 @@ func RunTemplateFile(inputFile string, values map[string]any, outputFile *os.Fil
 }
 
 func RunTemplateInMemory(inputTemplate string, values map[string]any) (string, error) {
-	t := template.Must(template.New("template").Funcs(tmplext.GetTemplateFuncMap()).Parse(inputTemplate))
+	funcs := tmplext.GetTemplateFuncMap(
+		func(t string) (string, error) {
+			return RunTemplateInMemory(t, values)
+		},
+	)
+
+	t := template.Must(template.New("template").Funcs(funcs).Parse(inputTemplate))
 
 	buf := new(strings.Builder)
 

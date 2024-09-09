@@ -38,7 +38,8 @@ If a directory is specified, all .yml/.yaml files in that directory will be proc
     endsWith(suffix, s string) bool                 # check if string ends with suffix
     startsWith(prefix, s string) bool               # check if string starts with prefix
     contains(substring, s string) bool              # check if string contains substring
-    includeAsYamlFields(pattern string) string      # include files as YAML fields (especially useful for K8s config maps)
+    include(globPattern string) string              # include files concatinated
+    includeAsYamlFields(globPattern string) string  # include files as YAML fields (especially useful for K8s config maps)
 
 
 # Example templates and usage
