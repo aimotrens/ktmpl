@@ -16,7 +16,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var compileDate, ktmplVersion string
+var (
+	compileDate  = "unknown"
+	ktmplVersion = "vX.X.X"
+)
 
 var usage = `Usage:
 ktmpl [options] <templates>
@@ -67,7 +70,7 @@ func main() {
 	flag.Parse()
 
 	if version {
-		fmt.Printf("ktmpl %s, compiled at %s with %v on %v/%v\n", ktmplVersion, compileDate, runtime.Version(), runtime.GOOS, runtime.GOARCH)
+		fmt.Printf("ktmpl %s, compiled at %s with %v\n", ktmplVersion, compileDate, runtime.Version())
 		return
 	}
 
