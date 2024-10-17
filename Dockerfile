@@ -8,7 +8,7 @@ RUN go build -ldflags "-X \"main.ktmplVersion=${KTMPL_VERSION}\" -X \"main.compi
 
 # ---
 
-FROM debian:latest@sha256:375f44b5cd53a4a1a6fe53bc4ef1cdbf9e558b7c91d3c06b55c9974895b6af0c as kubectl_downloader
+FROM debian:latest@sha256:086406f837aaf20ee5ea47a12575de8f6b6920033b3f09e09b6cd927155ba6d9 as kubectl_downloader
 
 RUN apt-get update && apt-get install -y ca-certificates curl && rm -rf /var/lib/apt/lists/*
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
@@ -16,7 +16,7 @@ RUN chmod +x ./kubectl
 
 # ---
 
-FROM debian:latest@sha256:375f44b5cd53a4a1a6fe53bc4ef1cdbf9e558b7c91d3c06b55c9974895b6af0c
+FROM debian:latest@sha256:086406f837aaf20ee5ea47a12575de8f6b6920033b3f09e09b6cd927155ba6d9
 
 RUN apt-get update && apt-get install -y curl xz-utils && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /src/bin/ktmpl /usr/bin/ktmpl
