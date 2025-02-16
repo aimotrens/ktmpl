@@ -1,8 +1,10 @@
 module github.com/aimotrens/ktmpl
 
-go 1.23
+go 1.23.0
+
+toolchain go1.24.0
 
 require (
-	golang.org/x/exp v0.0.0-20250210185358-939b2ce775ac
+	golang.org/x/exp v0.0.0-20250215185904-eff6e970281f
 	gopkg.in/yaml.v3 v3.0.1
 )
