@@ -54,9 +54,10 @@ pack-release:
     - mkdir -p release/artifacts
   script:
     - |
+      cp LICENSE release/{{.GOOS}}_{{.GOARCH}}/
       cp README.md release/{{.GOOS}}_{{.GOARCH}}/
       {{if eq .GOOS "windows"}}
         zip -r -j release/artifacts/ktmpl_{{.GOOS}}_{{.GOARCH}}.zip release/{{.GOOS}}_{{.GOARCH}}/
       {{else}}
-        tar cvfJ release/artifacts/ktmpl_{{.GOOS}}_{{.GOARCH}}.tar.xz -C release/{{.GOOS}}_{{.GOARCH}} ktmpl README.md
+        tar cvfJ release/artifacts/ktmpl_{{.GOOS}}_{{.GOARCH}}.tar.xz -C release/{{.GOOS}}_{{.GOARCH}} ktmpl LICENSE README.md
       {{end}}
