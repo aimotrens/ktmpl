@@ -19,10 +19,11 @@ jobs:
       uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5
       with:
         go-version-file: './go.mod'
+    - name: impulsar vorbereiten
+      uses: aimotrens/impulsar@main
     - name: Tests ausführen
       run: |
-        go mod download
-        go test ./... -v
+        impulsar run test
 
 
   tag-next-version:
@@ -62,30 +63,13 @@ jobs:
       uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5
       with:
         go-version-file: './go.mod'
+    - name: impulsar vorbereiten
+      uses: aimotrens/impulsar@main
     - name: Build
       env:
         KTMPL_VERSION: ${{ needs.tag-next-version.outputs.version }}
       run: |
-        mkdir -p release/assets
-        go mod download
-        
-        GOOS=linux GOARCH=amd64 go build -ldflags "-X \"main.ktmplVersion=${KTMPL_VERSION}\" -X \"main.compileDate=$(date)\"" -o release/ktmpl-linux-amd64 ./cmd/ktmpl/
-        tar cvfJ release/assets/ktmpl-linux-amd64.tar.xz release/ktmpl-linux-amd64
-
-        GOOS=linux GOARCH=arm64 go build -ldflags "-X \"main.ktmplVersion=${KTMPL_VERSION}\" -X \"main.compileDate=$(date)\"" -o release/ktmpl-linux-arm64 ./cmd/ktmpl/
-        tar cvfJ release/assets/ktmpl-linux-arm64.tar.xz release/ktmpl-linux-arm64
-
-        GOOS=windows GOARCH=amd64 go build -ldflags "-X \"main.ktmplVersion=${KTMPL_VERSION}\" -X \"main.compileDate=$(date)\"" -o release/ktmpl-windows-amd64.exe ./cmd/ktmpl/
-        zip release/assets/ktmpl-windows-amd64.zip release/ktmpl-windows-amd64.exe
-
-        GOOS=windows GOARCH=arm64 go build -ldflags "-X \"main.ktmplVersion=${KTMPL_VERSION}\" -X \"main.compileDate=$(date)\"" -o release/ktmpl-windows-arm64.exe ./cmd/ktmpl/
-        zip release/assets/ktmpl-windows-arm64.zip release/ktmpl-windows-arm64.exe
-
-        GOOS=darwin GOARCH=amd64 go build -ldflags "-X \"main.ktmplVersion=${KTMPL_VERSION}\" -X \"main.compileDate=$(date)\"" -o release/ktmpl-darwin-amd64 ./cmd/ktmpl/
-        tar cvfJ release/assets/ktmpl-darwin-amd64.tar.xz release/ktmpl-darwin-amd64
-
-        GOOS=darwin GOARCH=arm64 go build -ldflags "-X \"main.ktmplVersion=${KTMPL_VERSION}\" -X \"main.compileDate=$(date)\"" -o release/ktmpl-darwin-arm64 ./cmd/ktmpl/
-        tar cvfJ release/assets/ktmpl-darwin-arm64.tar.xz release/ktmpl-darwin-arm64
+        impulsar run build pack-release
     - name: Github-Release erstellen
       uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1
       with:

@@ -1,0 +1,53 @@
+test:
+  script:
+    - go test -v ./...
+
+build:
+  foreach: &platforms
+    - GOOS: linux
+      GOARCH: arm64
+      EXE_SUFFIX: ""
+    - GOOS: linux
+      GOARCH: amd64
+      EXE_SUFFIX: ""
+    - GOOS: windows
+      GOARCH: amd64
+      EXE_SUFFIX: ".exe"
+    - GOOS: windows
+      GOARCH: arm64
+      EXE_SUFFIX: ".exe"
+    - GOOS: darwin
+      GOARCH: arm64
+      EXE_SUFFIX: ""
+    - GOOS: darwin
+      GOARCH: amd64
+      EXE_SUFFIX: ""
+  script:
+    - |
+      {{if eq .OS "windows"}}
+        New-Item -Type Directory -Force release/{{.GOOS}}_{{.GOARCH}}
+        go build -o release/{{.GOOS}}_{{.GOARCH}}/ktmpl{{.EXE_SUFFIX}} -ldflags "-X `"main.ktmplVersion={{.KTMPL_VERSION}}`" ` -X `"main.compileDate=$(Get-Date -UFormat %s)`"" ./cmd/ktmpl
+      {{else if eq .OS "linux"}}
+        mkdir -p release/{{.GOOS}}_{{.GOARCH}}
+        go build -o release/{{.GOOS}}_{{.GOARCH}}/ktmpl{{.EXE_SUFFIX}} -ldflags "-X \"main.ktmplVersion={{.KTMPL_VERSION}}\" -X \"main.compileDate=$(date +%s)\"" ./cmd/ktmpl
+      {{else}}
+        echo "Unknown Platform"
+        STOP
+      {{end}}
+
+# ---
+
+pack-release:
+  shell:
+    type: bash
+  foreach: *platforms
+  script:pre:
+    - mkdir -p release/artifacts
+  script:
+    - |
+      cp README.md release/{{.GOOS}}_{{.GOARCH}}/
+      {{if eq .GOOS "windows"}}
+        zip -r -j release/artifacts/ktmpl_{{.GOOS}}_{{.GOARCH}}.zip release/{{.GOOS}}_{{.GOARCH}}/
+      {{else}}
+        tar cvfJ release/artifacts/ktmpl_{{.GOOS}}_{{.GOARCH}}.tar.xz -C release/{{.GOOS}}_{{.GOARCH}} ktmpl README.md
+      {{end}}
