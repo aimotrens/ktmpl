@@ -42,6 +42,11 @@ If a directory is specified, all .yml/.yaml files in that directory will be proc
     includeAsYamlFields(globPattern string) string  # include files as YAML fields (especially useful for K8s config maps)
 
 
+# Docker
+
+You can also use ktmpl as a Docker container in you CI/CD pipelines. The image is available on docker hub as `t3a6/kdeploy` and bundles ktmpl and kubectl in one image.
+
+
 # Example templates and usage
 
 ## ./values.yml
@@ -92,6 +97,9 @@ ktmpl -e ./values.yml | ktmpl -i - ./template/ | kubectl apply -f -
 The first `ktmpl` call will process `values.yml` and replaces the CI environment variable.
 The result is piped into the second `ktmpl` call which processes the template files with the values from the first call.
 The result from the second call is piped into `kubectl apply` which applies the manifests to the Kubernetes cluster.
+
+The preffered way on Gitlab CI is to write the output to a file and then use `kubectl apply -f xxx.yml` to apply the manifests.
+Now you can store the output file as artifact to view the result of the templating process for debugging purposes.
 
 
 # Exclude directories

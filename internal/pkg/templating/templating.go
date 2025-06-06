@@ -5,7 +5,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/aimotrens/ktmpl/app/tmplext"
+	"github.com/aimotrens/ktmpl/internal/pkg/tmplext"
 )
 
 func RunTemplateFile(inputFile string, values map[string]any, outputFile *os.File) {
