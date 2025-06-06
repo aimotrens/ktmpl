@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  tests:
+  qa:
     permissions:
       contents: read
     runs-on: ubuntu-latest
@@ -23,13 +23,13 @@ jobs:
       uses: aimotrens/impulsar@main
     - name: Tests ausführen
       run: |
-        impulsar run test
+        impulsar run qa
 
 
   tag-next-version:
     permissions:
       contents: write
-    needs: tests
+    needs: qa
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get_next_version.outputs.version }}

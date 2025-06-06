@@ -1,6 +1,15 @@
+analyze:
+  script:
+    - go vet ./...
+
 test:
   script:
     - go test -v ./...
+
+qa:
+  jobs:
+    - analyze
+    - test
 
 build:
   foreach: &platforms
