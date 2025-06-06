@@ -154,3 +154,46 @@ Result:
       service-b.properties: |
         ConfigA=Value1
 ```
+
+
+# CI/CD examples
+
+## Kubernetes manifest example
+
+For a practical example, see the kube-example directory. It contains Kubernetes manifests ready to be processed by ktmpl. The manifests are structured for an application with separate UI and API containers and are configured for a GitLab CI/CD pipeline that leverages review apps.
+
+
+
+## Gitlab example usage
+
+```yaml
+deploy-job:
+  stage: deploy
+  image: t3a6/kdeploy:vX.X.X
+  script:
+    - ktmpl --env .kube/testing.yml | ktmpl --env --values - --output .kube/deploy.yml .kube/template
+    - kubectl apply -f .kube/deploy.yml
+  artifacts:
+    name: "kubemanifest"
+    expire_in: 1 month
+    when: always
+    paths:
+      - .kube/deploy.yml
+```
+
+
+## Github example usage
+
+```yaml
+  deploy-job:
+    runs-on: ubuntu-latest
+    container: t3a6/kdeploy:vX.X.X
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to Kubernetes
+        shell: bash
+        run: |
+          echo "${{secrets.KUBECONFIG}}" > .kube/config
+          export KUBECONFIG=.kube/config
+          ktmpl --env .kube/prod.yml | ktmpl --env --values - .kube/template | kubectl apply -f -
+```

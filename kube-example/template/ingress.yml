@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: {{.namespace}}
+  name: {{.globalAppName}}
+  annotations:
+    cert-manager.io/cluster-issuer: "xyz-issuer"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - "{{.externalDomain}}"
+      secretName: {{.globalAppName}}-https
+  rules:
+    - host: "{{.externalDomain}}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{.globalAppName}}-ui
+                port:
+                  name: http
+          - path: /api/
+            pathType: Prefix
+            backend:
+              service:
+                name: {{.globalAppName}}-api
+                port:
+                  name: http

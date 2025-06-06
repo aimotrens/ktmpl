@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{.namespace}}
+  name: {{.globalAppName}}-api
+data:
+  MYAPP_EXTERNAL_DOMAIN: "{{.externalDomain}}"
+  MYAPP_DATABASE_SERVER: "{{.database}}"
+  MYAPP_DATABASE_USERNAME: "the_user"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  namespace: {{.namespace}}
+  name: {{.globalAppName}}-api
+type: Opaque
+stringData:
+  "MYAPP_DB_PASSWORD": "{{.env.MYAPP_DB_PASSWORD}}"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{.namespace}}
+  name: {{.globalAppName}}-api
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 5000
+  selector:
+    app: {{.globalAppName}}-api
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{.namespace}}
+  name: {{.globalAppName}}-api
+spec:
+  replicas: {{.resources.replicas}}
+  selector:
+    matchLabels:
+      app: {{.globalAppName}}-api
+  template:
+    metadata:
+      labels:
+        app: {{.globalAppName}}-api
+    spec:
+      containers:
+        - image: {{.apiImage}}
+          name: {{.globalAppName}}-api
+          ports:
+            - containerPort: 5000
+          resources:
+            requests:
+              memory: "450Mi"
+              cpu: "200m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          startupProbe:
+            httpGet: &healthcheck
+              path: /api/health/check
+              port: 5000
+            initialDelaySeconds: 2
+            periodSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet: *healthcheck
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: *healthcheck
+            periodSeconds: 10
+          envFrom:
+            - configMapRef:
+                name: {{.globalAppName}}-api
+            - secretRef:
+                name: {{.globalAppName}}-api
+          env:
+            - name: TZ
+              value: Europe/Berlin

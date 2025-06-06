@@ -1,0 +1,12 @@
+globalAppName: myapp-{{.env.CI_ENVIRONMENT_SLUG}}
+namespace: default
+
+database: test-db
+externalDomain: myapp-{{.env.CI_ENVIRONMENT_SLUG}}.test.example.com
+
+apiImage: t3a6/myapp-api:{{.env.CI_COMMIT_REF_SLUG}}-p{{.env.CI_PIPELINE_ID}}
+uiImage: t3a6/myapp-ui:{{.env.CI_COMMIT_REF_SLUG}}-p{{.env.CI_PIPELINE_ID}}
+
+resources:
+  replicas: 1
+  

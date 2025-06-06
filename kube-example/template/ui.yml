@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{.namespace}}
+  name: {{.globalAppName}}-ui
+data:
+  config.json: |-
+    {
+      "API_URL": "https://{{.externalDomain}}"
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{.namespace}}
+  name: {{.globalAppName}}-ui
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+  selector:
+    app: {{.globalAppName}}-ui
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{.namespace}}
+  name: {{.globalAppName}}-ui
+spec:
+  replicas: {{.resources.replicas}}
+  selector:
+    matchLabels:
+      app: {{.globalAppName}}-ui
+  template:
+    metadata:
+      labels:
+        app: {{.globalAppName}}-ui
+    spec:
+      containers:
+        - image: {{.uiImage}}
+          name: {{.globalAppName}}-ui
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "100m"
+            limits:
+              memory: "32Mi"
+              cpu: "250m"
+          startupProbe:
+            httpGet: &healthcheck
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          readinessProbe:
+            httpGet: *healthcheck
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: *healthcheck
+            periodSeconds: 10
+          volumeMounts:
+            - name: {{.globalAppName}}-ui-config
+              subPath: config.json
+              mountPath: /usr/share/nginx/html/config.json
+              readOnly: true
+      volumes:
+        - name: {{.globalAppName}}-ui-config
+          configMap:
+            name: {{.globalAppName}}-ui
