@@ -6,13 +6,33 @@ on:
       - main
 
 jobs:
+  tests:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      with:
+        fetch-depth: '0'
+    - name: go vorbereiten
+      uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5
+      with:
+        go-version-file: './go.mod'
+    - name: Tests ausführen
+      run: |
+        go mod download
+        go test ./... -v
+
+
   tag-next-version:
+    permissions:
+      contents: write
+    needs: tests
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get_next_version.outputs.version }}
       hasNextVersion: ${{ steps.get_next_version.outputs.hasNextVersion }}
-    permissions:
-      contents: write
     steps:
     - name: Checkout
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
@@ -31,17 +51,17 @@ jobs:
 
 
   build-gh-release:
+    permissions:
+      contents: write
     needs: tag-next-version
     if: ${{ needs.tag-next-version.outputs.hasNextVersion == 'true' }}
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
     - name: go vorbereiten
       uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5
       with:
-        go-version: '1.24'
+        go-version-file: './go.mod'
     - name: Build
       env:
         KTMPL_VERSION: ${{ needs.tag-next-version.outputs.version }}
@@ -66,7 +86,6 @@ jobs:
 
         GOOS=darwin GOARCH=arm64 go build -ldflags "-X \"main.ktmplVersion=${KTMPL_VERSION}\" -X \"main.compileDate=$(date)\"" -o release/ktmpl-darwin-arm64
         tar cvfJ release/assets/ktmpl-darwin-arm64.tar.xz release/ktmpl-darwin-arm64
-
     - name: Github-Release erstellen
       uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1
       with:
@@ -75,6 +94,8 @@ jobs:
 
         
   build-docker:
+    permissions:
+      contents: read
     needs: tag-next-version
     if: ${{ needs.tag-next-version.outputs.hasNextVersion == 'true' }}
     runs-on: ubuntu-latest    

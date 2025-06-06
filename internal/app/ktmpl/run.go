@@ -1,7 +1,6 @@
 package ktmpl
 
 import (
-	"flag"
 	"fmt"
 	"io"
 	"io/fs"
@@ -14,12 +13,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func Run(valuesFile string, output string, addEnv bool, recursive bool) {
+func Run(valuesFile, inputTemplate, output string, addEnv bool, recursive bool) {
 	var opendValuesFile *os.File
 	var opendOutputFile *os.File
 	var err error
-
-	inputTemplate := flag.Arg(0)
 
 	if inputTemplate == "" {
 		fmt.Println("No input specified")

@@ -75,5 +75,6 @@ func main() {
 		return
 	}
 
-	ktmpl.Run(valuesFile, output, addEnv, recursive)
+	inputTemplate := flag.Arg(0)
+	ktmpl.Run(valuesFile, inputTemplate, output, addEnv, recursive)
 }
