@@ -20,7 +20,7 @@ jobs:
       with:
         go-version-file: './go.mod'
     - name: impulsar vorbereiten
-      uses: aimotrens/impulsar@main
+      uses: aimotrens/impulsar@31ff1548639cdee04a12c269206b647b1c288639 # main
     - name: Tests ausführen
       run: |
         impulsar run qa
@@ -41,7 +41,7 @@ jobs:
         fetch-depth: '0'
     - name: Get next version
       id: get_next_version
-      uses: thenativeweb/get-next-version@main
+      uses: thenativeweb/get-next-version@dbed25f9fb0a5159cb09751bd027e31ed7863356 # main
       with:
         prefix: 'v'
     - name: Create tag
@@ -64,7 +64,7 @@ jobs:
       with:
         go-version-file: './go.mod'
     - name: impulsar vorbereiten
-      uses: aimotrens/impulsar@main
+      uses: aimotrens/impulsar@31ff1548639cdee04a12c269206b647b1c288639 # main
     - name: Build
       env:
         KTMPL_VERSION: ${{ needs.tag-next-version.outputs.version }}
