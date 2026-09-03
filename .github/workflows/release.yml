@@ -20,7 +20,7 @@ jobs:
       with:
         go-version-file: './go.mod'
     - name: impulsar vorbereiten
-      uses: aimotrens/impulsar@c19b5af6e66a607cda875adff2cc89aa425c9a13 # main
+      uses: aimotrens/impulsar@a6a0038c4fb512fd369e2fa8e24cd3287439ef8d # main
     - name: Tests ausführen
       run: |
         impulsar run qa
@@ -64,7 +64,7 @@ jobs:
       with:
         go-version-file: './go.mod'
     - name: impulsar vorbereiten
-      uses: aimotrens/impulsar@c19b5af6e66a607cda875adff2cc89aa425c9a13 # main
+      uses: aimotrens/impulsar@a6a0038c4fb512fd369e2fa8e24cd3287439ef8d # main
     - name: Build
       env:
         KTMPL_VERSION: ${{ needs.tag-next-version.outputs.version }}
