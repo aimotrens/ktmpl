@@ -3,6 +3,8 @@
 ktmpl is a lightweight templating tool to process YAML files. It uses the go template engine.
 It was born out of the idea of having a simple way to process Kubernetes manifests in Gitlab CI pipelines.
 
+**Note:** This project is being renamed to [kast](https://github.com/tippwark/kast). While the command line interface is very similar, `kast` has undergone some modernization and is not a 1:1 drop-in replacement. In general, replacing `ktmpl` with `kast render` and optionally adjusting the Docker image is sufficient to migrate to `kast`.
+
 
 # Usage
 
